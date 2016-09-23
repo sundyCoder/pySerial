@@ -18,10 +18,8 @@ class OE:
     button_value= None
     selectPort = None
 
-
     ser = serial.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS, timeout=0)
-
     def check_sum(msg):
         if not msg:
             return None
@@ -30,7 +28,6 @@ class OE:
             vi = int( ord(v) )
             s = s ^ vi
         return s
-
 
     def append_checksum(msg):
         c = check_sum(msg)
@@ -97,6 +94,10 @@ class OE:
         combobox.selectitem(first) #select com port
         self.choseEntry(first)
 
+
+        global selectPort
+        ser = serial.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
+                        bytesize=serial.EIGHTBITS, timeout=0)
 
         label_text = ''
         for i in range(0,2):
