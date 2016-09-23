@@ -1,8 +1,10 @@
 from Tkinter import *
-from random import choice
 import Pmw
 import serial
 import parase
+
+import sys
+sys.modules['Pmw']
 
 class Dummy: pass
 var = Dummy()
@@ -14,8 +16,10 @@ class OE:
     status_busy = None
     List_button_value=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     button_value= None
+    selectPort = None
 
-    ser = serial.Serial(port='COM3', baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
+
+    ser = serial.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS, timeout=0)
 
     def check_sum(msg):
@@ -52,9 +56,13 @@ class OE:
 
 
 
-    def choseEntry(entry):
-        print ('You chose "%s"' % entry)
-        choice.configure(text=entry)
+    def choseEntry(self,portNum):
+        print 'Port:' + portNum
+        self.target.configure(text = portNum)
+        global selectPort
+        selectPort = portNum
+        print 'Selected port:' + selectPort
+        pass
 
     def create_button(self,frame, id):
         pass
@@ -62,9 +70,16 @@ class OE:
     def main(self):
         root = Tk()
         root.title('ASTRI')
-        Pmw.initialise()
+        Pmw.initialise(root)
         root.geometry('{}x{}'.format(400,150))
         choice = None
+
+        self.target = Label(root,
+            relief = 'sunken',
+                    padx = 20,
+                    pady = 20,
+        )
+
 
         fm1 = Frame(root)
         fm2 = Frame(root)
@@ -78,7 +93,10 @@ class OE:
                         selectioncommand=self.choseEntry,
                         scrolledlist_items=ports)
         combobox.pack(side=TOP)
-        combobox.selectitem(ports[0]) #select com port
+        first = ports[0]
+        combobox.selectitem(first) #select com port
+        self.choseEntry(first)
+
 
         label_text = ''
         for i in range(0,2):
