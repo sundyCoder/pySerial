@@ -3,12 +3,9 @@ from random import choice
 import Pmw
 import serial
 import parase
-from new import append_checksum
 
 class Dummy: pass
 var = Dummy()
-
-cmd_exe = 'DrawRects.exe'
 
 class OE:
     filename = None
@@ -20,22 +17,37 @@ class OE:
 
     ser = serial.Serial(port='COM3', baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS, timeout=0)
+
+    def check_sum(msg):
+        if not msg:
+            return None
+        s = int( ord(msg[0]) )
+        for v in msg[1:]:
+            vi = int( ord(v) )
+            s = s ^ vi
+        return s
+
+
+    def append_checksum(msg):
+        c = check_sum(msg)
+        return "%s%x"%(msg,c)
+
     def onclick(self,i):
        if i<=9:
            print 'clicked ',i
            if self.List_button_value[i-1] == 0:
-              self.ser.write(append_checksum('$1%d000'% i))
+              self.ser.write(self.append_checksum('$1%d000'% i))
               self.List_button_value[i-1]=1
            elif self.List_button_value[i-1]==1:
-              self.ser.write(append_checksum('$2%d000'% i))
+              self.ser.write(self.append_checksum('$2%d000'% i))
               self.List_button_value[i-1]=0
        else:
            if self.List_button_value[i-1] == 0:
-               print (append_checksum('$1%X000' % i))
-               self.ser.write(append_checksum('$1%X000' % i))
+               print (self.append_checksum('$1%X000' % i))
+               self.ser.write(self.append_checksum('$1%X000' % i))
                self.List_button_value[i-1] = 1
            elif self.List_button_value[i-1] == 1:
-               self.ser.write(append_checksum('$2%X000' % i))
+               self.ser.write(self.append_checksum('$2%X000' % i))
                self.List_button_value[i-1] = 0
 
 
@@ -43,8 +55,10 @@ class OE:
     def choseEntry(entry):
         print ('You chose "%s"' % entry)
         choice.configure(text=entry)
+
     def create_button(self,frame, id):
         pass
+
     def main(self):
         root = Tk()
         root.title('ASTRI')
@@ -93,12 +107,9 @@ class OE:
                         setattr(var, label_text, IntVar())
                         if j < 13:
                             Checkbutton(fm4, text=label_text, state=NORMAL, anchor=W,command=lambda x=j: self.onclick(x), variable=getattr(var, label_text)).grid(row=i, column=j-9, sticky=W)
-                            #Checkbutton(fm4, text=label_text, state=NORMAL,command=lambda x=j: self.onclick(x), anchor=W,variable = getattr(var, label_text)).grid(row=i, column=j-9, sticky=W)
-                            #Checkbutton.bind("<button-1>", self.onclick(j))
                         else:
                             Checkbutton(fm5, text=label_text, state=NORMAL, anchor=W,command=lambda x=j: self.onclick(x), variable=getattr(var, label_text)).grid(row=i, column=j - 9, sticky=W)
-                            #Checkbutton(fm5, text=label_text, state=NORMAL,command=lambda x=j: self.onclick(x), anchor=W,variable = getattr(var, label_text)).grid(row=i, column=j-9, sticky=W)
-                            #Checkbutton.bind("<button-1>", self.onclick(j))
+
         fm1.pack(side=TOP,  expand=NO);
         fm2.pack(side=TOP,  expand=NO);
         fm3.pack(side=TOP,  expand=NO);
