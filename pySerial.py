@@ -18,9 +18,8 @@ class OE:
     button_value= None
     selectPort = None
 
-    ser = serial.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS, timeout=0)
-    def check_sum(msg):
+    ser = serial.Serial();
+    def check_sum(self, msg):
         if not msg:
             return None
         s = int( ord(msg[0]) )
@@ -29,8 +28,8 @@ class OE:
             s = s ^ vi
         return s
 
-    def append_checksum(msg):
-        c = check_sum(msg)
+    def append_checksum(self, msg):
+        c = self.check_sum(msg)
         return "%s%x"%(msg,c)
 
     def onclick(self,i):
@@ -58,7 +57,16 @@ class OE:
         self.target.configure(text = portNum)
         global selectPort
         selectPort = portNum
-        print 'Selected port:' + selectPort
+        print 'Selected port:' + selectPort        
+        self.ser.close()
+        self.ser.port = selectPort
+        self.ser.baudrate = 9600
+        self.ser.parity = serial.PARITY_NONE
+        self.ser.stopbits = serial.STOPBITS_ONE
+        self.ser.bytesize=serial.EIGHTBITS
+        self.ser.timeout = 0
+        self.ser.open();
+        #self.ser.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS, timeout=0)
         pass
 
     def create_button(self,frame, id):
@@ -92,12 +100,7 @@ class OE:
         combobox.pack(side=TOP)
         first = ports[0]
         combobox.selectitem(first) #select com port
-        self.choseEntry(first)
-
-
-        global selectPort
-        ser = serial.Serial(port=selectPort, baudrate=9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS, timeout=0)
+        self.choseEntry(first)        
 
         label_text = ''
         for i in range(0,2):

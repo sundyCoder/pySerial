@@ -1,7 +1,7 @@
 from distutils.core import setup
 import py2exe
 
-setup(windows=['gui.py'],
+setup(windows=['pySerial.py'],
 	options = {
         'py2exe': {
             'packages': ['Pmw']
